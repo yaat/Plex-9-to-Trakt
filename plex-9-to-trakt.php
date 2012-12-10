@@ -110,6 +110,7 @@ function parse_show_section($xml)
             if ((string) $episode->attributes()->type == 'episode')
             {
               $shows[$title]->seasons[$season_no][(integer) $episode->attributes()->index] = isset($episode->attributes()->viewCount) ? true : false;
+ 	      $shows[$title]->tvid  =$tvdbid;
             }
           }
         }

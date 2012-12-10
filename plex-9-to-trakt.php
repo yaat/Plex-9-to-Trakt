@@ -79,6 +79,13 @@ function parse_show_section($xml)
     {
       $xml = simplexml_load_string(file_get_contents(PLEX_URL . $key));
 
+	// on prend le tvdb id du show
+	//on charge sans /children
+	$key2=str_replace("/children", "", $key);
+	$xml2 = simplexml_load_string(file_get_contents(PLEX_URL . $key2));
+	$thetvdburl=$xml2->Directory[0]->attributes()->guid;
+	$tvdbid=find_entre($thetvdburl, 'com.plexapp.agents.thetvdb://', '?lang');
+
       foreach ($xml->Directory AS $value)
       {
         if ((string) $value->attributes()->type == 'season')
@@ -141,7 +148,7 @@ function parse_show_section($xml)
 
       if (count($data_watched) > 0)
       {
-        $data->title = $title;
+        $data->tvdb_id = $value->tvid;
         $data->year = $value->year;
         $data->episodes = $data_watched;
         
@@ -159,7 +166,7 @@ function parse_show_section($xml)
 
       if (($options["watched"] === false) && (count($data_unwatched) > 0))
       {
-        $data->title = $title;
+        $data->tvdb_id = $value->tvid;
         $data->year = $value->year;
         $data->episodes = $data_unwatched;
 
@@ -438,6 +445,22 @@ function getargs($arguments)
     }
     
     return $result_array;
+}
+
+function find_entre($s, $str1, $str2, $ignore_case = false) {
+    $func = $ignore_case ? stripos : strpos;
+    $start = $func($s, $str1);
+    if ($start === false) {
+	return '';
+    }
+
+    $start += strlen($str1);
+    $end = $func($s, $str2, $start);
+    if ($end === false) {
+	return '';
+    }
+
+    return substr($s, $start, $end - $start);
 }
 
 ?>
